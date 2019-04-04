@@ -1,3 +1,161 @@
+
+function getAPIdata() {
+
+	var url = "https://api.openweathermap.org/data/2.5/weather";
+	var apiKey ="b0c8dafa512a0134e90df6ece3c2b7a2";
+	var city = document.getElementById("city").value;
+
+	// construct request
+	var request = url + "?" + "appid=" + apiKey + "&" + "q=" + city;
+
+	// get current weather
+	fetch(request)
+
+	// parse to JSON format
+	.then(function(response) {
+		if(!response.ok) throw Error(response.statusText);
+		return response.json();
+	})
+
+	// render weather per day
+	.then(function(response) {
+		// render weatherCondition
+		onAPISucces(response);
+	})
+
+	// catch error
+	.catch(function (error) {
+		onAPIError(error);
+	});
+}
+
+
+function onAPISucces(response) {
+	// get type of weather in string format
+	var type = response.weather[0].description;
+
+	// get temperature in Celcius
+	var degC = Math.floor(response.main.temp - 273.15);
+
+	// render weather in DOM
+	var weatherBox = document.getElementById('weather');
+	weatherBox.innerHTML = degC + "&#176;C <br>" + type;
+
+  var weatherIcon = document.getElementById('icon').src = 'http://openweathermap.org/img/w/' + response.weather[0].icon + '.png';
+
+
+
+}
+
+
+function onAPIError(error) {
+	console.error('Fetch request failed', error);
+	var weatherBox = document.getElementById('weather');
+	weatherBox.innerHTML = 'No weather data available <br /> Did you enter a valid city?';
+}
+
+// init data stream
+document.getElementById("getWeather").onclick = function(){
+	getAPIdata();
+};
+
+function getPuppy() {
+	var url = 'https://random.dog/woof.json';
+
+	fetch(url)
+	.then(function(response){
+		return response.json();
+	})
+	.then(function(response){
+		document.getElementById('puppy-pic').src = response.url;
+	})
+}
+
+
+
+function moveISS () {
+    $.getJSON('http://api.open-notify.org/iss-now.json?callback=?', function(data) {
+        var lat = data['iss_position']['latitude'];
+        var lon = data['iss_position']['longitude'];
+        document.getElementById('position')
+        // See leaflet docs for setting up icons and map layers
+        // The update to the map is done here:
+        iss.setLatLng([lat, lon]);
+        isscirc.setLatLng([lat, lon]);
+        map.panTo([lat, lon], animate=true);
+    });
+    setTimeout(moveISS, 5000);
+}
+
+
+$.getJSON('http://api.open-notify.org/astros.json?callback=?', function(data) {
+    var number = data['number'];
+    $('#spacepeeps').html(number);
+
+    data['people'].forEach(function (d) {
+         $('#astronames').append('<li>' + d['name'] + '</li>');
+    });
+});
+
+
+var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 8
+        });
+      }
+
+/*
+
+var url2 = "https://api.nasa.gov/planetary/apod?api_key=NNKOjkoul8n1CH18TWA9gwngW1s1SmjESPjNoUFo";
+
+$.ajax({
+  url: url2,
+  success: function(result){
+  if("copyright" in result) {
+    $("#copyright").text("Image Credits: " + result.copyright);
+  }
+  else {
+    $("#copyright").text("Image Credits: " + "Public Domain");
+  }
+
+  if(result.media_type == "video") {
+    $("#apod_img_id").css("display", "none");
+    $("#apod_vid_id").attr("src", result.url);
+  }
+  else {
+    $("#apod_vid_id").css("display", "none");
+    $("#apod_img_id").attr("src", result.url);
+  }
+  $("#reqObject").text(url2);
+  $("#returnObject").text(JSON.stringify(result, null, 4));
+  $("#apod_explaination").text(result.explanation);
+  $("#apod_title").text(result.title);
+}
+});
+
+
+
+
+function onAPISucces(response){
+
+	document.getElementsByTagName('h1')[0].innerHTML = 'Search results for "'+q+'"';
+
+	resultBox = document.getElementById('results');
+
+	for(var i=0; i<response.artObjects.length; i++){
+		console.log(response.artObjects[i]);
+		resultBox.innerHTML += '<figure>'
+							 + '<img src="'+response.artObjects[i].webImage.url+'" />'
+							 + '<figcaption>'+response.artObjects[i].longTitle+'</figcaption>'
+							 + '</figure>';
+	}
+}
+
+
+
+
 var today = new Date();
 var h;
 var m;
@@ -26,19 +184,6 @@ function startTime() {
   s = checkTime(s);
   document.getElementById('clock').innerHTML = h + ":" + m + ":" + s;
 
-  document.getElementById('planets').onmousedown = function () {
-    document.getElementById('earth-title').innerHTML = 'Mars time:';
-    m+=40;
-  }
-
-  if (h<=12) {
-    document.body.style.backgroundImage = "url('./images/backgroundmorning.jpg')";
-  } else if (h<=17) {
-    document.body.style.backgroundImage = "url('./images/background.jpg')";
-
-  } else if (h<24) {
-    document.body.style.backgroundImage = "url('./images/backgroundnight.jpg')";
-  }
 
   var t = setTimeout(function() {
     startTime()
@@ -57,54 +202,6 @@ startTime()
 
 
 
-
-// set timeline
-var timeline = new TimelineMax({ repeat: -1, ease: Power0.easeNone });
-
-// amimate timeline
-timeline.to('.marsbar', 1, { opacity: 1})
-		.from('.m1', 200, { backgroundPositionX: 2400}, 'marsbar')
-		.from('.m2', 300, { backgroundPositionX: 1200}, 'marsbar');
-
-//Change the colors for the themes from button
-
-  var textColor = 0;
-
-document.getElementById('themes').onclick = function changeTheme(){
-
-  if (textColor == 0) {
-    document.body.style.color = "yellow";
-    document.getElementById("header").style.color = "yellow";
-    document.getElementById("themes").style.color = "yellow";
-      document.getElementById("planets").style.color = "yellow";
-    textColor+= 1;
-  }
-  else if (textColor == 1) {
-    document.body.style.color = "red";
-    document.getElementById("header").style.color = "red";
-    document.getElementById("themes").style.color = "white";
-    document.getElementById("planets").style.color = "white";
-
-    textColor+= 1;
-  }
-  else{
-    document.body.style.color = "blue";
-    document.getElementById("header").style.color = "blue";
-    document.getElementById("themes").style.color = "blue";
-    document.getElementById("planets").style.color = "blue";
-
-    textColor-=2;
-  }
-};
-
-document.getElementById('planets').onclick = function changePlanet(){
-
-};
-
-TweenLite.to(clockCome, 2.5, {
-  ease: Circ.easeOut,
-  y: 500
-});
 
 
 
