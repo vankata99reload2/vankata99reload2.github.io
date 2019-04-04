@@ -59,7 +59,7 @@ document.getElementById("getWeather").onclick = function(){
 	getAPIdata();
 };
 
-function getPuppy() {
+function getDoggo() {
 	var url = 'https://random.dog/woof.json';
 
 	fetch(url)
@@ -67,7 +67,7 @@ function getPuppy() {
 		return response.json();
 	})
 	.then(function(response){
-		document.getElementById('puppy-pic').src = response.url;
+		document.getElementById('dogPicture').src = response.url;
 	})
 }
 
